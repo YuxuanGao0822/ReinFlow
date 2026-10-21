@@ -30,6 +30,9 @@ class DataSpaceDMD(nn.Module):
         self.min_time, self.max_time = min_time, max_time
         self.horizon_steps, self.action_dim = horizon_steps, action_dim
         self.act_range = (act_min, act_max)
+        # The generic ReinFlow pretrainer does not move its Hydra model to
+        # cfg.device. Unlike ReFlow, this module owns three network copies.
+        self.to(device)
 
     def train(self, mode=True):
         super().train(mode)
