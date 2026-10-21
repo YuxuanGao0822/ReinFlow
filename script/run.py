@@ -32,7 +32,8 @@ clean_pycache(directory=REINFLOW_DIR)
 
 # register kitchen tasks in advance. prevent env not found error. 
 import gym
-import d4rl.gym_mujoco
+# D4RL registration is deferred to non-Robomimic runs so visual robot
+# pretraining does not require legacy mujoco-py at import time.
 
 import gc
 gc.collect()
@@ -71,6 +72,8 @@ sys.stderr = open(sys.stderr.fileno(), mode="w", buffering=1)
 def main(cfg: OmegaConf):
     # resolve immediately so all the ${now:} resolvers will use the same time.
     OmegaConf.resolve(cfg)
+    if cfg.get("env_suite") != "robomimic":
+        import d4rl.gym_mujoco  # noqa: F401 - registers legacy Gym environments
     
     # ReinFlow Authors: Set rendering backend from config file.
     sim_device = cfg.get('sim_device', None)
