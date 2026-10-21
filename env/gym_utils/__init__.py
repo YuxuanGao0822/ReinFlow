@@ -170,7 +170,9 @@ def make_async(
                 obs_modality_dict.pop("rgb")
             ObsUtils.initialize_obs_modality_mapping_from_dict(obs_modality_dict)
             if render_offscreen or use_image_obs:
-                os.environ[""] = "egl"
+                # GPU rendering is configured by script/run.py via MUJOCO_GL.
+                # Writing os.environ[""] fails on POSIX (invalid env key).
+                pass
             with open(robomimic_env_cfg_path, "r") as f:
                 env_meta = json.load(f)
             env_meta["reward_shaping"] = reward_shaping
@@ -242,7 +244,8 @@ def make_async(
 
     def dummy_env_fn():
         """TODO(allenzren): does this dummy env allow camera obs for other envs besides robomimic?"""
-        import d4rl
+        if robomimic_env_cfg_path is None:
+            import d4rl  # noqa: F401 - register D4RL when necessary
         import gym
         import numpy as np
         from env.gym_utils.wrapper.multi_step import MultiStep
